@@ -28,6 +28,7 @@ class GNSSDataFactor : public ceres::SizedCostFunction<2, 7>
                     jacobian_pose_i.setZero();
                     jacobian_pose_i.block<2, 3>(0, 0) = -Eigen::Matrix3d::Identity().block<2, 3>(0, 0);
                     jacobian_pose_i.block<2, 3>(0, 3) = (Ri * skewSymmetric(sensor_gnss_to_body_)).block<2, 3>(0, 0);
+                    jacobian_pose_i = sqrt_info * jacobian_pose_i;
                 } 
             }
             return true;

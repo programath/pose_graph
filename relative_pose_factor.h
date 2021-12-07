@@ -48,6 +48,7 @@ class RelativePoseFactor : public ceres::SizedCostFunction<6, 7, 7>
                     jacobian_pose_i.block<3, 3>(0, 0) = -Eigen::Matrix3d::Identity();
                     jacobian_pose_i.block<3, 3>(0, 3) = Ri * skewSymmetric(rel_t_);
                     jacobian_pose_i.block<3, 3>(3, 3) = Qleft(Qj_est).block<3,3>(1,1);
+                    jacobian_pose_i = sqrt_info * jacobian_pose_i;
                 } 
                 if (jacobians[1]) {
                     Eigen::Map<Eigen::Matrix<double, 6, 7, Eigen::RowMajor> > jacobian_pose_j(jacobians[1]); 
@@ -55,6 +56,7 @@ class RelativePoseFactor : public ceres::SizedCostFunction<6, 7, 7>
                     jacobian_pose_j.block<3, 3>(0, 0) = Eigen::Matrix3d::Identity();
                     jacobian_pose_j.block<3, 3>(3, 3) = Eigen::Matrix3d::Identity();
                     jacobian_pose_j.block<3, 3>(3, 3) = -(Qleft(Qj.inverse() * Qi) * Qright(rel_rot_)).block<3,3>(1,1);
+                    jacobian_pose_j = sqrt_info * jacobian_pose_j;
                 }
             }
             return true;

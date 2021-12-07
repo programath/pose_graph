@@ -25,6 +25,25 @@ class PoseGraph {
         problem_.AddParameterBlock(para_poses_.at(pose_id).data(), 7, local_parameterization);
     }
 
+    Eigen::Matrix<double, 3, 4> get_pose(int pose_id) {
+        Eigen::Matrix<double, 3, 4> pose;
+        const std::vector<double> & para_pose = para_poses_.at(pose_id);
+        Eigen::Map<const Eigen::Vector3d> t(para_pose.data());
+        pose.block<3,1>(0,3) = t;
+    
+        Eigen::Map<const Eigen::Quaterniond> q(para_pose.data() + 3);
+        pose.block<3,3>(0,0) = q.toRotationMatrix();
+        return pose;
+    }
+
+    std::vector<std::pair<int, double> > pose_timestamps() {
+        return pose_timestamps_;
+    }
+
+    size_t size() {
+        return pose_timestamps_.size(); 
+    }
+
     void add_relative_pose_factor(int pose_id, int pose_id_second, const Eigen::Matrix<double,3,4> & rel_pose) {
         
         RelativePoseFactor * factor = new RelativePoseFactor(rel_pose);
@@ -57,14 +76,14 @@ class PoseGraph {
         ceres::Solve(options, &problem_, &summary);
     }
 
-    void dump(std::string dump_path) {
+    void dump(std::string dump_path, char delim = ',') {
         std::fstream fout(dump_path, std::ios::out);
         for (int i = 0; i < pose_timestamps_.size(); ++i) {
             int pose_id = pose_timestamps_.at(i).first;
             const std::vector<double> & para_pose = para_poses_.at(pose_id);
             fout << std::fixed << pose_timestamps_.at(i).second;
             for (int k = 0; k < 7; ++k) {
-                fout << " " << para_pose.at(k);
+                fout << delim << para_pose.at(k);
             }
             fout << std::endl;
         }

@@ -5,14 +5,16 @@
 #include "io.h"
 #include "relative_pose_factor.h"
 #include "gnss_data_factor.h"
+#include "height_factor.h"
+#include "regress_plane.h"
 
 int main() {
 
     std::vector<std::pair<double, Eigen::Matrix<double, 3, 4> > > gt_poses;
     std::vector<std::pair<double, Eigen::Vector3d> > gnss_data;
 
-    std::string pose_file = "/data/cs55/mapping/2021-11-29/bag5/data/global_camera_pose.csv";
-    std::string gnss_file = "/data/cs55/mapping/2021-11-29/bag5/data/gnss_measure.csv";
+    std::string pose_file = "data/global_camera_pose.csv";
+    std::string gnss_file = "data/gnss_measure.csv";
 
     load_gtposes(pose_file, gt_poses);
     load_gnss_observations(gnss_file, gnss_data);
@@ -44,6 +46,20 @@ int main() {
         GNSSDataFactor * factor = new GNSSDataFactor(gnss_data.at(idx).second, sensor_gps_to_body);
         pose_graph.add_observation_factor(pose_id, factor);
     }
+
+    HDMapDataBase hdmap_database("data/hdmap");
+
+    double sensor_plane_to_body = 1.7;   
+    std::vector<std::pair<int, double> > pose_timestamps = pose_graph.pose_timestamps();
+    for (const auto & pose_timestamp : pose_timestamps) {
+        int id = pose_timestamp.first;
+        Eigen::Matrix<double,3,4> pose = pose_graph.get_pose(id);
+        Eigen::Vector3d xyz = pose.block<3,1>(0,3);
+        double height;
+        hdmap_database.construct_plane_height_constraint(xyz, 50., height);
+        HeightFactor * factor = new HeightFactor(height, sensor_plane_to_body);
+        pose_graph.add_observation_factor(id, factor);
+    } 
 
     pose_graph.solve();
 

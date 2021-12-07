@@ -12,5 +12,5 @@ include_directories(${OpenCV_INCLUDE_DIRS})
 find_package(Ceres)
 include_directories(${CERES_INCLUDE_DIRS})
 
-add_executable(gnss_odom_optimizer gnss_odom_optimizer.cc pose_local_parameterization.cc io.cc)
-target_link_libraries(gnss_odom_optimizer ${OpenCV_LIBS} ${CERES_LIBRARIES})
+add_executable(gnss_odom_optimizer gnss_odom_optimizer.cc pose_local_parameterization.cc io.cc regress_plane.cc)
+target_link_libraries(gnss_odom_optimizer ${CERES_LIBRARIES})

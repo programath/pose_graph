@@ -60,7 +60,7 @@ void load_gnss_observations(const std::string & file_path, std::vector<std::pair
     std::vector<std::string> csv_coord;
     while (getline(gnsss_file, line))
     {
-        csv_coord = split(line, " ");
+        csv_coord = split(line, ",");
         // double qw, qx, qy, qz, tx, ty, tz;
         double timestamp = stod(csv_coord[0]);
         double gnss_x = std::stod(csv_coord[1]);
