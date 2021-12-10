@@ -6,7 +6,7 @@
 #include "relative_pose_factor.h"
 #include "gnss_data_factor.h"
 #include "height_factor.h"
-#include "regress_plane.h"
+#include "hdmap_loader.h"
 
 int main() {
 
@@ -48,20 +48,21 @@ int main() {
     }
 
     // Uncomment to enable the plane constraint.
-    // HDMapDataBase hdmap_database("../data/hdmap");
+     HDMapDataBase hdmap_database("/home/jinyu/Documents/pose_graph/data/100101-bxdp_line.utm.txt");
 
-    // double sensor_plane_to_body = 1.7;   
-    // std::vector<std::pair<int, double> > pose_timestamps = pose_graph.pose_timestamps();
-    // for (const auto & pose_timestamp : pose_timestamps) {
-    //     int id = pose_timestamp.first;
-    //     Eigen::Matrix<double,3,4> pose = pose_graph.get_pose(id);
-    //     Eigen::Vector3d xyz = pose.block<3,1>(0,3);
-    //     double height;
-    //     hdmap_database.construct_plane_height_constraint(xyz, 50., height);
-    //     HeightFactor * factor = new HeightFactor(height, sensor_plane_to_body);
-    //     pose_graph.add_observation_factor(id, factor);
-    // } 
-
+     double sensor_plane_to_body = 1.7;
+     std::vector<std::pair<int, double> > pose_timestamps = pose_graph.pose_timestamps();
+     for (const auto & pose_timestamp : pose_timestamps) {
+         int id = pose_timestamp.first;
+         Eigen::Matrix<double,3,4> pose = pose_graph.get_pose(id);
+         Eigen::Vector3d xyz = pose.block<3,1>(0,3);
+         double height;
+         hdmap_database.construct_plane_height_constraint(xyz, 50, height, "lane");
+         std::cout << height << std::endl;
+         HeightFactor * factor = new HeightFactor(height, sensor_plane_to_body);
+         pose_graph.add_observation_factor(id, factor);
+     }
+     std::cout << "done." << std::endl;
     // Solve the pose graph.
     pose_graph.solve();
 
