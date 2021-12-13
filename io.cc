@@ -37,10 +37,10 @@ void load_gtposes(const std::string & file_path, std::vector<std::pair<double, E
         double gt_x = std::stod(csv_coord[1]);
         double gt_y = std::stod(csv_coord[2]);
         double gt_height = std::stod(csv_coord[3]);
-        double gt_qw = std::stod(csv_coord[4]);
-        double gt_qx = std::stod(csv_coord[5]);
-        double gt_qy = std::stod(csv_coord[6]);
-        double gt_qz = std::stod(csv_coord[7]);
+        double gt_qx = std::stod(csv_coord[4]);
+        double gt_qy = std::stod(csv_coord[5]);
+        double gt_qz = std::stod(csv_coord[6]);
+        double gt_qw = std::stod(csv_coord[7]);
 
         Eigen::Quaterniond G_R_V_gt(gt_qw, gt_qx, gt_qy, gt_qz);
 

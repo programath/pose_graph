@@ -41,6 +41,7 @@ class PosePlotter(object):
         ax.set_xlabel('X Axis')
         ax.set_ylabel('Y Axis')
         ax.set_zlabel('Z Axis')
+        # ax.axis('equal')
         plt.show()
     
     def show_in_2d_map(self):
@@ -76,7 +77,8 @@ class PosePlotter(object):
 
 
 if __name__ == '__main__':
-    plotter = PosePlotter('/home/jinyu/Documents/pose_graph/data/global_camera_pose.csv', '/home/jinyu/Documents/pose_graph/data/gnss_measure.csv')
+    # plotter = PosePlotter('../data/global_camera_pose.csv', '../data/gnss_measure.csv')
+    plotter = PosePlotter('../build/solved_poses.csv', '../data/gnss_measure.csv')
     plotter.show_in_3d_map() # show all the ground-truth trajectory and GNSS observations in 3D map
     plotter.show_in_2d_map() # show all the ground-truth trajectory and GNSS observations in 2D map 
     plotter.track_gnss_measurement_in_2d_map() # show one GNSS observation and its nearby ground-truth trajectory in 2D map

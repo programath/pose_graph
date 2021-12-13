@@ -33,10 +33,11 @@ int main() {
                 gt_poses.at(id - 1).second.block<3,3>(0,0).transpose() * (pose.block<3,1>(0,3) - gt_poses.at(id - 1).second.block<3,1>(0,3));
 
             pose_graph.add_relative_pose_factor(id - 1, id, rel_pose);
+            
         }   
     }     
 
-    Eigen::Vector3d sensor_gps_to_body = Eigen::Vector3d(0, 0, 0);   
+    Eigen::Vector3d sensor_gps_to_body = Eigen::Vector3d(0, 0.2770, -0.8861);   
 
     for (int idx = 0; idx < gnss_data.size(); ++idx) {
         double timestamp = gnss_data.at(idx).first;
@@ -50,16 +51,19 @@ int main() {
     // Uncomment to enable the plane constraint.
     HDMapDataBase hdmap_database("../hdmap/tsinghua/100101-bxdp_line.utm.txt");
 
-    double sensor_plane_to_body = 1.7;   
+    double sensor_plane_to_body = 1.89;   
+    double search_radius = 50.;
     std::vector<std::pair<int, double> > pose_timestamps = pose_graph.pose_timestamps();
     for (const auto & pose_timestamp : pose_timestamps) {
         int id = pose_timestamp.first;
         Eigen::Matrix<double,3,4> pose = pose_graph.get_pose(id);
         Eigen::Vector3d xyz = pose.block<3,1>(0,3);
         double height;
-        hdmap_database.construct_plane_height_constraint(xyz, 50., height);
-        HeightFactor * factor = new HeightFactor(height, sensor_plane_to_body);
-        pose_graph.add_observation_factor(id, factor);
+        if (hdmap_database.construct_plane_height_constraint(xyz, search_radius, height)) {
+            std::cout << height + sensor_plane_to_body << std::endl;
+            HeightFactor * factor = new HeightFactor(height, sensor_plane_to_body);
+            pose_graph.add_observation_factor(id, factor);
+        }
     } 
 
     // Solve the pose graph.

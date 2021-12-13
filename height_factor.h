@@ -7,7 +7,7 @@ class HeightFactor : public ceres::SizedCostFunction<1, 7>
     public:
         HeightFactor(const double &measure, const double & sensor_plane_to_body) : 
             measure_(measure), sensor_plane_to_body_(sensor_plane_to_body) {
-            sqrt_info = 100.0;
+            sqrt_info = 1000.0;
         }
 
         virtual bool Evaluate(double const *const *parameteres, double *residuals, double **jacobians) const {

@@ -67,6 +67,13 @@ class PoseGraph {
     }
 
     void solve() {
+
+        // reset the orientation to fix the orientation degree of freedom
+        int pose_id = pose_timestamps_.front().first;
+        Eigen::Map<const Eigen::Quaterniond> q(para_poses_.at(pose_id).data() + 3);
+        Eigen::Quaterniond qinit = q;
+        std::cout << qinit.toRotationMatrix() << std::endl;
+
         ceres::Solver::Options options;
         options.trust_region_strategy_type = ceres::LEVENBERG_MARQUARDT;
         options.minimizer_progress_to_stdout = true;
@@ -74,6 +81,19 @@ class PoseGraph {
 
         ceres::Solver::Summary summary;
         ceres::Solve(options, &problem_, &summary);
+
+        Eigen::Map<const Eigen::Quaterniond> q0(para_poses_.at(pose_id).data() + 3);
+        std::cout << q0.toRotationMatrix() << std::endl;
+
+        Eigen::Quaterniond qdiff = q0.inverse() * qinit;
+        std::cout << qdiff.toRotationMatrix() << std::endl;
+
+        for (int i = 0; i < pose_timestamps_.size(); ++i) {
+            int pose_id = pose_timestamps_.at(i).first;
+            std::vector<double> & para_pose = para_poses_[pose_id];
+            Eigen::Map<Eigen::Quaterniond> q(para_pose.data() + 3);
+            q = q * qdiff;
+        }
     }
 
     void dump(std::string dump_path, char delim = ',') {

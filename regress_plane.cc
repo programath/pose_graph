@@ -85,12 +85,21 @@ bool plane_fitting(const std::vector<Eigen::Vector3d> & plane_pts,
     }
 
     Eigen::MatrixXd AtA = A.transpose() * A;
-    Eigen::JacobiSVD<Eigen::MatrixXd> svd(AtA, Eigen::ComputeThinU | Eigen::ComputeThinV);
-    Eigen::LLT<Eigen::MatrixXd> cholSolver(AtA);
-    if (cholSolver.info() != Eigen::Success) 
+    Eigen::SelfAdjointEigenSolver<Eigen::Matrix3d> eigen_solver(AtA);
+    if (eigen_solver.info() != Eigen::Success) {
+        std::cout << "SelfAdjointEigenSolver fails." << std::endl;
         return false;
-
-    plane_coeff = AtA.llt().solve(A.transpose() * b);
+    }
+    const Eigen::Vector3d& eigen_values = eigen_solver.eigenvalues();
+    if (eigen_values(0) < 1e-6 || std::abs(eigen_values(2) / eigen_values(0)) > 1000) {
+        std::cout << "Too big eigen value ratio." << std::endl;
+        return false;
+    } 
+    Eigen::LLT<Eigen::MatrixXd> cholSolver = AtA.llt();
+    if (cholSolver.info() != Eigen::Success) {
+        return false;
+    }
+    plane_coeff = cholSolver.solve(A.transpose() * b);
     return true;
 }
 
@@ -101,5 +110,5 @@ bool HDMapDataBase::construct_plane_height_constraint(Eigen::Vector3d camera_xyz
         road_height = coeff.z();
         return true;
     } 
-    return true;
+    return false;
 }
