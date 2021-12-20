@@ -4,3 +4,7 @@ build
 build/*
 hdmap
 hdmap/*
+tools/__pycache__
+tools/__pycache__/*
+tools/*.pyc
+
