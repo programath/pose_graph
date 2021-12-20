@@ -41,7 +41,7 @@ class PoseDataBase:
     def filter_timestamps(self, timestamps, timestamps_str):
         max_t = np.max(self.key_times)
         min_t = np.min(self.key_times)
-        timestamps = timestamps[(timestamps > min_t) & (timestamps < max_t)]
         index = (timestamps > min_t) & (timestamps < max_t)
+        timestamps = timestamps[(timestamps > min_t) & (timestamps < max_t)]
         timestamps_str = [timestamps_str[i] for i in range(len(index)) if index[i]]
         return timestamps, timestamps_str

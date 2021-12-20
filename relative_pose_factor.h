@@ -25,7 +25,7 @@ class RelativePoseFactor : public ceres::SizedCostFunction<6, 7, 7>
             // Ti^1 * Tj = Rel_pose --> Rel_pose^-1 * Ti^-1 * Tj = err.  (Ti*[1,1/2\theta]*Rel_pose)^-1 * Tj 
             // = -[0, I] * ((Tj*-1 * Ti*[1,1/2\theta]*Rel_pose)) = -2[0 I] * (Tj*-1 * Ti)_L * (Rel_pose)R * [0, 1/2I] 
             Eigen::Quaterniond Qj_est = Qi * rel_rot_;
-            Eigen::Vector3d Pj_est = Qi * rel_t_ + Pi; // FIXME: remove the rotation part.
+            Eigen::Vector3d Pj_est = Qi * rel_t_ + Pi; // FIXME: remove the rotation part
 
             Eigen::Quaterniond err = Qj_est.inverse() * Qj;
             
